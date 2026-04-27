@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,27 +17,43 @@ body{
 display:flex;
 height:100vh;
 background:#f5f5f5;
+direction:rtl;
 }
 
 /* Sidebar */
 .sidebar{
-width:280px;
+width:300px;
 background:#202123;
 color:white;
 padding:15px;
 overflow-y:auto;
 }
 
-.new-chat{
+.logo{
+font-size:24px;
+font-weight:bold;
+margin-bottom:20px;
+text-align:center;
+}
+
+.btn{
 width:100%;
 padding:12px;
-background:#19c37d;
 border:none;
 border-radius:10px;
-color:white;
-font-size:18px;
+font-size:17px;
 cursor:pointer;
-margin-bottom:15px;
+margin-bottom:10px;
+}
+
+.new-chat{
+background:#19c37d;
+color:white;
+}
+
+.clear-history{
+background:#e53935;
+color:white;
 }
 
 .chat-item{
@@ -47,10 +63,20 @@ border-radius:10px;
 margin-bottom:10px;
 cursor:pointer;
 transition:.3s;
+position:relative;
 }
 
 .chat-item:hover{
 background:#444654;
+}
+
+.delete-one{
+position:absolute;
+left:10px;
+top:10px;
+color:#ff7675;
+cursor:pointer;
+font-size:18px;
 }
 
 /* Main */
@@ -80,13 +106,13 @@ max-width:75%;
 padding:15px;
 margin:10px 0;
 border-radius:15px;
-line-height:1.6;
+line-height:1.7;
 white-space:pre-wrap;
 }
 
 .user{
 background:#d4f8d4;
-margin-left:auto;
+margin-right:auto;
 }
 
 .ai{
@@ -96,9 +122,9 @@ border:1px solid #ddd;
 
 .input-area{
 padding:15px;
+background:white;
 display:flex;
 gap:10px;
-background:white;
 border-top:1px solid #ddd;
 }
 
@@ -125,42 +151,42 @@ cursor:pointer;
 <body>
 
 <div class="sidebar">
-<button class="new-chat" onclick="newChat()">+ New Chat</button>
+<div class="logo">AI Support</div>
+
+<button class="btn new-chat" onclick="newChat()">+ محادثة جديدة</button>
+<button class="btn clear-history" onclick="clearHistory()">🗑 حذف كل السجل</button>
+
 <div id="history"></div>
 </div>
 
 <div class="main">
+
 <div class="header">AI Support Chat</div>
 
 <div class="chat-box" id="chatBox"></div>
 
 <div class="input-area">
 <textarea id="message" placeholder="اكتب رسالتك هنا..."></textarea>
-<button class="send" onclick="sendMessage()">Send</button>
+<button class="send" onclick="sendMessage()">إرسال</button>
 </div>
+
 </div>
 
 <script>
-/* ضع مفتاحك هنا */
-const API_KEY = "ضع_المفتاح_هنا";
-
-/* لو app.py شغال محلياً استخدم هذا */
-const API_URL = "http://127.0.0.1:5000/chat";
-
-/* ========================= */
-
 let chats = JSON.parse(localStorage.getItem("chats")) || [];
 let currentChat = null;
 
+/* حفظ */
 function saveChats(){
 localStorage.setItem("chats", JSON.stringify(chats));
 renderHistory();
 }
 
+/* محادثة جديدة */
 function newChat(){
 currentChat = {
 id: Date.now(),
-title:"New Chat",
+title:"محادثة جديدة",
 messages:[]
 };
 
@@ -169,24 +195,28 @@ saveChats();
 renderMessages();
 }
 
+/* عرض السجل */
 function renderHistory(){
 const history = document.getElementById("history");
 history.innerHTML = "";
 
 chats.forEach(chat=>{
 history.innerHTML += `
-<div class="chat-item" onclick="loadChat(${chat.id})">
-${chat.title}
+<div class="chat-item">
+<span onclick="loadChat(${chat.id})">${chat.title}</span>
+<span class="delete-one" onclick="deleteChat(${chat.id})">🗑</span>
 </div>
 `;
 });
 }
 
+/* فتح محادثة */
 function loadChat(id){
-currentChat = chats.find(c => c.id === id);
+currentChat = chats.find(c=>c.id===id);
 renderMessages();
 }
 
+/* عرض الرسائل */
 function renderMessages(){
 const box = document.getElementById("chatBox");
 box.innerHTML = "";
@@ -204,6 +234,30 @@ ${msg.text}
 box.scrollTop = box.scrollHeight;
 }
 
+/* حذف محادثة واحدة */
+function deleteChat(id){
+chats = chats.filter(chat => chat.id !== id);
+
+if(currentChat && currentChat.id === id){
+currentChat = null;
+document.getElementById("chatBox").innerHTML = "";
+}
+
+saveChats();
+}
+
+/* حذف كل السجل */
+function clearHistory(){
+if(confirm("هل تريد حذف كل السجل؟")){
+chats = [];
+currentChat = null;
+localStorage.removeItem("chats");
+renderHistory();
+document.getElementById("chatBox").innerHTML = "";
+}
+}
+
+/* إرسال */
 async function sendMessage(){
 
 const input = document.getElementById("message");
@@ -218,7 +272,7 @@ type:"user",
 text:text
 });
 
-if(currentChat.messages.length == 1){
+if(currentChat.messages.length === 1){
 currentChat.title = text.substring(0,25);
 }
 
@@ -227,17 +281,17 @@ saveChats();
 
 input.value="";
 
+/* رسالة انتظار */
 currentChat.messages.push({
 type:"ai",
-text:"...جاري التفكير"
+text:"...جاري الرد"
 });
 
 renderMessages();
 
 try{
 
-/* لو عندك app.py */
-const response = await fetch(API_URL,{
+const response = await fetch("/chat", {
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -249,8 +303,10 @@ message:text
 
 const data = await response.json();
 
+/* إزالة الانتظار */
 currentChat.messages.pop();
 
+/* الرد الحقيقي من الذكاء الاصطناعي */
 currentChat.messages.push({
 type:"ai",
 text:data.reply
@@ -265,15 +321,28 @@ currentChat.messages.pop();
 
 currentChat.messages.push({
 type:"ai",
-text:"حدث خطأ في الاتصال بالذكاء الاصطناعي."
+text:"تعذر الاتصال بالسيرفر. تأكد أن Flask يعمل."
 });
 
 renderMessages();
 }
+
 }
 
+/* Enter للإرسال */
+document.getElementById("message").addEventListener("keydown", function(e){
+if(e.key === "Enter" && !e.shiftKey){
+e.preventDefault();
+sendMessage();
+}
+});
+
 renderHistory();
-newChat();
+
+if(chats.length > 0){
+currentChat = chats[0];
+renderMessages();
+}
 </script>
 
 </body>
