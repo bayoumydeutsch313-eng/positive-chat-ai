@@ -4,49 +4,61 @@ from openai import OpenAI
 
 app = Flask(__name__)
 
-# الربط بالمفتاح اللي أنت حطيته في Render بأمان
+# مهم جدًا:
+# لا تضع API Key داخل الكود
+# ضعه فقط داخل Render -> Environment Variables
+# باسم:
+# OPENAI_API_KEY
+
 client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY")
+    api_key=os.getenv("OPENAI_API_KEY")
 )
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
+
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        # قراءة البيانات المبعوتة من الصفحة
         data = request.get_json()
-        user_message = data.get("message") or data.get("user_input")
+        user_message = data.get("message")
 
         if not user_message:
-            return jsonify({"reply": "لم تصلني رسالة، جرب مرة أخرى."}), 400
+            return jsonify({
+                "reply": "من فضلك اكتب رسالة أولاً"
+            }), 400
 
-        # طلب الرد من الذكاء الاصطناعي
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "أنت مساعد نفسي إيجابي وداعم جداً."},
-                {"role": "user", "content": user_message}
-            ]
+                {
+                    "role": "system",
+                    "content": "أنت مساعد نفسي إيجابي، ترد بلطف ودعم وتحفيز وتساعد الناس على التفكير بشكل أفضل."
+                },
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ],
+            temperature=0.7,
+            max_tokens=500
         )
 
-        # السطر ده هو "حل اللغز" اللي كان جايب الخطأ الأخير
-        # لازم نضيف عشان نحدد أول رد من القائمة
-        reply_content = response.choices.message.content
+        reply_content = response.choices[0].message.content
 
-        # الرد بكل الأسامي الممكنة عشان يرضي ملف الـ HTML عندك
         return jsonify({
-            "reply": reply_content,
-            "response": reply_content,
-            "message": reply_content
+            "reply": reply_content
         })
 
     except Exception as e:
-        # لو حصل أي حاجة تانية، السيرفر هيقولك هي إيه بالظبط
-        print(f"Detailed Error: {str(e)}")
-        return jsonify({"reply": f"حدث خطأ فني: {str(e)}", "response": "error"}), 500
+        print("ERROR:", str(e))
+
+        return jsonify({
+            "reply": f"عذراً، حدث خطأ فني: {str(e)}"
+        }), 500
+
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=10000)
