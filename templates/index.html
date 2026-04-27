@@ -1,143 +1,259 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Support Chat</title>
 
 <style>
-body {
-    font-family: Arial;
-    background: #f5f7fa;
-    padding: 30px;
-    text-align: center;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, sans-serif;
 }
 
-.chat-container {
-    width: 75%;
-    margin: auto;
-    background: white;
-    border-radius: 15px;
-    padding: 30px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+body{
+display:flex;
+height:100vh;
+background:#f1f1f1;
 }
 
-.top-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+/* Sidebar */
+.sidebar{
+width:280px;
+background:#202123;
+color:white;
+padding:15px;
+overflow-y:auto;
 }
 
-#chat-box {
-    height: 400px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    text-align: left;
+.new-chat{
+width:100%;
+padding:12px;
+background:#19c37d;
+border:none;
+color:white;
+font-size:18px;
+border-radius:10px;
+cursor:pointer;
+margin-bottom:15px;
 }
 
-.message {
-    margin: 15px 0;
-    padding: 12px;
-    border-radius: 10px;
+.chat-item{
+background:#343541;
+padding:12px;
+border-radius:8px;
+margin-bottom:10px;
+cursor:pointer;
+transition:0.3s;
 }
 
-.user {
-    background: #d1f5d3;
+.chat-item:hover{
+background:#444654;
 }
 
-.bot {
-    background: #f1f1f1;
+/* Main */
+.main{
+flex:1;
+display:flex;
+flex-direction:column;
 }
 
-textarea {
-    width: 90%;
-    height: 100px;
-    padding: 15px;
-    font-size: 16px;
-    border-radius: 10px;
+.header{
+padding:20px;
+font-size:28px;
+font-weight:bold;
+text-align:center;
+background:white;
+border-bottom:1px solid #ddd;
 }
 
-button {
-    padding: 12px 24px;
-    background: green;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
+.chat-box{
+flex:1;
+padding:20px;
+overflow-y:auto;
+}
+
+.message{
+max-width:75%;
+padding:15px;
+margin:10px 0;
+border-radius:15px;
+line-height:1.6;
+}
+
+.user{
+background:#d4f8d4;
+margin-left:auto;
+}
+
+.ai{
+background:#ffffff;
+border:1px solid #ddd;
+}
+
+.input-area{
+padding:15px;
+background:white;
+display:flex;
+gap:10px;
+border-top:1px solid #ddd;
+}
+
+textarea{
+flex:1;
+padding:15px;
+font-size:16px;
+border-radius:10px;
+resize:none;
+height:60px;
+}
+
+button.send{
+padding:15px 25px;
+background:#19c37d;
+border:none;
+color:white;
+font-size:18px;
+border-radius:10px;
+cursor:pointer;
 }
 </style>
 </head>
 <body>
 
-<div class="chat-container">
+<div class="sidebar">
+<button class="new-chat" onclick="newChat()">+ New Chat</button>
+<div id="history"></div>
+</div>
 
-    <div class="top-buttons">
-        <button onclick="startNewChat()">New Chat</button>
-        <h2>AI Support Chat</h2>
-        <div></div>
-    </div>
+<div class="main">
+<div class="header">AI Support Chat</div>
 
-    <div id="chat-box"></div>
+<div class="chat-box" id="chatBox"></div>
 
-    <textarea
-        id="message"
-        placeholder="اكتب رسالتك هنا..."
-    ></textarea>
-
-    <br><br>
-
-    <button onclick="sendMessage()">إرسال</button>
-
+<div class="input-area">
+<textarea id="message" placeholder="اكتب رسالتك هنا..."></textarea>
+<button class="send" onclick="sendMessage()">Send</button>
+</div>
 </div>
 
 <script>
-async function sendMessage() {
-    const messageInput = document.getElementById("message");
-    const message = messageInput.value;
-    const chatBox = document.getElementById("chat-box");
+let chats = JSON.parse(localStorage.getItem("chats")) || [];
+let currentChat = null;
 
-    if (!message.trim()) return;
-
-    chatBox.innerHTML += `
-        <div class="message user">
-            <b>أنت:</b><br>${message}
-        </div>
-    `;
-
-    messageInput.value = "";
-
-    const response = await fetch("/chat", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            message: message
-        })
-    });
-
-    const data = await response.json();
-
-    chatBox.innerHTML += `
-        <div class="message bot">
-            <b>AI:</b><br>${data.reply}
-        </div>
-    `;
-
-    chatBox.scrollTop = chatBox.scrollHeight;
+function saveChats(){
+localStorage.setItem("chats", JSON.stringify(chats));
+renderHistory();
 }
 
-async function startNewChat() {
-    await fetch("/new-chat", {
-        method: "POST"
-    });
-
-    document.getElementById("chat-box").innerHTML = "";
+function newChat(){
+let id = Date.now();
+currentChat = {
+id:id,
+title:"New Chat",
+messages:[]
+};
+chats.unshift(currentChat);
+saveChats();
+renderMessages();
 }
+
+function renderHistory(){
+let history = document.getElementById("history");
+history.innerHTML="";
+
+chats.forEach(chat=>{
+history.innerHTML += `
+<div class="chat-item" onclick="loadChat(${chat.id})">
+${chat.title}
+</div>
+`;
+});
+}
+
+function loadChat(id){
+currentChat = chats.find(c=>c.id===id);
+renderMessages();
+}
+
+function renderMessages(){
+let box = document.getElementById("chatBox");
+box.innerHTML="";
+
+if(!currentChat) return;
+
+currentChat.messages.forEach(msg=>{
+box.innerHTML += `
+<div class="message ${msg.type}">
+${msg.text}
+</div>
+`;
+});
+
+box.scrollTop = box.scrollHeight;
+}
+
+function sendMessage(){
+let input = document.getElementById("message");
+let text = input.value.trim();
+
+if(text=="") return;
+
+if(!currentChat) newChat();
+
+currentChat.messages.push({
+type:"user",
+text:text
+});
+
+if(currentChat.messages.length == 1){
+currentChat.title = text.substring(0,25);
+}
+
+renderMessages();
+saveChats();
+
+input.value="";
+
+setTimeout(()=>{
+let reply = getAIResponse(text);
+
+currentChat.messages.push({
+type:"ai",
+text:reply
+});
+
+renderMessages();
+saveChats();
+
+},1000);
+}
+
+function getAIResponse(msg){
+
+msg = msg.toLowerCase();
+
+if(msg.includes("تعبان") || msg.includes("مكتئب")){
+return "أنا آسف إنك حاسس بكده. وجودك مهم جداً، حاول تاخد راحة وتتكلم مع شخص تثق فيه.";
+}
+
+if(msg.includes("خايف")){
+return "الخوف طبيعي، لكن لا تدعه يوقفك. خذ خطوة صغيرة فقط.";
+}
+
+if(msg.includes("وحيد")){
+return "أنت لست وحدك، وأنا هنا معك نتكلم وقتما تريد.";
+}
+
+return "أنا هنا أسمعك. احكي لي أكثر عن شعورك.";
+}
+
+renderHistory();
+newChat();
 </script>
 
 </body>
+</html>
 </html>
