@@ -10,13 +10,13 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial, sans-serif;
+font-family:Arial,sans-serif;
 }
 
 body{
 display:flex;
 height:100vh;
-background:#f1f1f1;
+background:#f5f5f5;
 }
 
 /* Sidebar */
@@ -33,9 +33,9 @@ width:100%;
 padding:12px;
 background:#19c37d;
 border:none;
+border-radius:10px;
 color:white;
 font-size:18px;
-border-radius:10px;
 cursor:pointer;
 margin-bottom:15px;
 }
@@ -43,10 +43,10 @@ margin-bottom:15px;
 .chat-item{
 background:#343541;
 padding:12px;
-border-radius:8px;
+border-radius:10px;
 margin-bottom:10px;
 cursor:pointer;
-transition:0.3s;
+transition:.3s;
 }
 
 .chat-item:hover{
@@ -81,6 +81,7 @@ padding:15px;
 margin:10px 0;
 border-radius:15px;
 line-height:1.6;
+white-space:pre-wrap;
 }
 
 .user{
@@ -89,28 +90,28 @@ margin-left:auto;
 }
 
 .ai{
-background:#ffffff;
+background:white;
 border:1px solid #ddd;
 }
 
 .input-area{
 padding:15px;
-background:white;
 display:flex;
 gap:10px;
+background:white;
 border-top:1px solid #ddd;
 }
 
 textarea{
 flex:1;
+height:60px;
+resize:none;
 padding:15px;
 font-size:16px;
 border-radius:10px;
-resize:none;
-height:60px;
 }
 
-button.send{
+.send{
 padding:15px 25px;
 background:#19c37d;
 border:none;
@@ -140,6 +141,14 @@ cursor:pointer;
 </div>
 
 <script>
+/* ضع مفتاحك هنا */
+const API_KEY = "ضع_المفتاح_هنا";
+
+/* لو app.py شغال محلياً استخدم هذا */
+const API_URL = "http://127.0.0.1:5000/chat";
+
+/* ========================= */
+
 let chats = JSON.parse(localStorage.getItem("chats")) || [];
 let currentChat = null;
 
@@ -149,20 +158,20 @@ renderHistory();
 }
 
 function newChat(){
-let id = Date.now();
 currentChat = {
-id:id,
+id: Date.now(),
 title:"New Chat",
 messages:[]
 };
+
 chats.unshift(currentChat);
 saveChats();
 renderMessages();
 }
 
 function renderHistory(){
-let history = document.getElementById("history");
-history.innerHTML="";
+const history = document.getElementById("history");
+history.innerHTML = "";
 
 chats.forEach(chat=>{
 history.innerHTML += `
@@ -174,13 +183,13 @@ ${chat.title}
 }
 
 function loadChat(id){
-currentChat = chats.find(c=>c.id===id);
+currentChat = chats.find(c => c.id === id);
 renderMessages();
 }
 
 function renderMessages(){
-let box = document.getElementById("chatBox");
-box.innerHTML="";
+const box = document.getElementById("chatBox");
+box.innerHTML = "";
 
 if(!currentChat) return;
 
@@ -195,9 +204,10 @@ ${msg.text}
 box.scrollTop = box.scrollHeight;
 }
 
-function sendMessage(){
-let input = document.getElementById("message");
-let text = input.value.trim();
+async function sendMessage(){
+
+const input = document.getElementById("message");
+const text = input.value.trim();
 
 if(text=="") return;
 
@@ -217,37 +227,49 @@ saveChats();
 
 input.value="";
 
-setTimeout(()=>{
-let reply = getAIResponse(text);
+currentChat.messages.push({
+type:"ai",
+text:"...جاري التفكير"
+});
+
+renderMessages();
+
+try{
+
+/* لو عندك app.py */
+const response = await fetch(API_URL,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body: JSON.stringify({
+message:text
+})
+});
+
+const data = await response.json();
+
+currentChat.messages.pop();
 
 currentChat.messages.push({
 type:"ai",
-text:reply
+text:data.reply
 });
 
 renderMessages();
 saveChats();
 
-},1000);
+}catch(error){
+
+currentChat.messages.pop();
+
+currentChat.messages.push({
+type:"ai",
+text:"حدث خطأ في الاتصال بالذكاء الاصطناعي."
+});
+
+renderMessages();
 }
-
-function getAIResponse(msg){
-
-msg = msg.toLowerCase();
-
-if(msg.includes("تعبان") || msg.includes("مكتئب")){
-return "أنا آسف إنك حاسس بكده. وجودك مهم جداً، حاول تاخد راحة وتتكلم مع شخص تثق فيه.";
-}
-
-if(msg.includes("خايف")){
-return "الخوف طبيعي، لكن لا تدعه يوقفك. خذ خطوة صغيرة فقط.";
-}
-
-if(msg.includes("وحيد")){
-return "أنت لست وحدك، وأنا هنا معك نتكلم وقتما تريد.";
-}
-
-return "أنا هنا أسمعك. احكي لي أكثر عن شعورك.";
 }
 
 renderHistory();
@@ -255,5 +277,4 @@ newChat();
 </script>
 
 </body>
-</html>
 </html>
