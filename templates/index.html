@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>AI Support Chat</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f5f7fa;
+    padding: 30px;
+    text-align: center;
+}
+
+.chat-container {
+    width: 75%;
+    margin: auto;
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.top-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+#chat-box {
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.message {
+    margin: 15px 0;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.user {
+    background: #d1f5d3;
+}
+
+.bot {
+    background: #f1f1f1;
+}
+
+textarea {
+    width: 90%;
+    height: 100px;
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 10px;
+}
+
+button {
+    padding: 12px 24px;
+    background: green;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="chat-container">
+
+    <div class="top-buttons">
+        <button onclick="startNewChat()">New Chat</button>
+        <h2>AI Support Chat</h2>
+        <div></div>
+    </div>
+
+    <div id="chat-box"></div>
+
+    <textarea
+        id="message"
+        placeholder="اكتب رسالتك هنا..."
+    ></textarea>
+
+    <br><br>
+
+    <button onclick="sendMessage()">إرسال</button>
+
+</div>
+
+<script>
+async function sendMessage() {
+    const messageInput = document.getElementById("message");
+    const message = messageInput.value;
+    const chatBox = document.getElementById("chat-box");
+
+    if (!message.trim()) return;
+
+    chatBox.innerHTML += `
+        <div class="message user">
+            <b>أنت:</b><br>${message}
+        </div>
+    `;
+
+    messageInput.value = "";
+
+    const response = await fetch("/chat", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            message: message
+        })
+    });
+
+    const data = await response.json();
+
+    chatBox.innerHTML += `
+        <div class="message bot">
+            <b>AI:</b><br>${data.reply}
+        </div>
+    `;
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function startNewChat() {
+    await fetch("/new-chat", {
+        method: "POST"
+    });
+
+    document.getElementById("chat-box").innerHTML = "";
+}
+</script>
+
+</body>
+</html>
