@@ -4,8 +4,9 @@ from openai import OpenAI
 
 app = Flask(__name__)
 
+# الكود ده هيقرأ المفتاح من إعدادات Render اللي أنت لسه محدثها
 client = OpenAI(
-    api_key="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"
+    api_key=os.environ.get("OPENAI_API_KEY")
 )
 
 @app.route("/")
@@ -16,37 +17,32 @@ def home():
 def chat():
     try:
         data = request.get_json()
-        user_message = data.get("message")
+        # تقبل الرسالة بأي اسم مبعوتة بيه من الـ HTML
+        user_message = data.get("message") or data.get("user_input") or data.get("text")
 
         if not user_message:
-            return jsonify({"reply": "من فضلك اكتب رسالة أولاً"}), 400
+            return jsonify({"response": "لم تصلني رسالة"}), 400
 
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {
-                    "role": "system",
-                    "content": "أنت مساعد نفسي إيجابي، ترد بلطف ودعم وتحفيز وتساعد الناس على التفكير بشكل أفضل."
-                },
-                {
-                    "role": "user",
-                    "content": user_message
-                }
+                {"role": "system", "content": "أنت مساعد نفسي إيجابي، ترد بلطف ودعم وتحفيز."},
+                {"role": "user", "content": user_message}
             ]
         )
 
-        reply_content = response.choices[0].message.content
+        reply_content = response.choices.message.content
 
+        # نرد بكل الأسماء عشان الـ HTML يشوف الرد فوراً
         return jsonify({
-            "reply": reply_content
+            "reply": reply_content,
+            "response": reply_content,
+            "message": reply_content
         })
 
     except Exception as e:
-        print("ERROR:", str(e))
-        return jsonify({
-            "reply": f"حدث خطأ: {str(e)}"
-        }), 500
-
+        # لو حصل خطأ، هيظهر لك سببه الحقيقي في الـ Logs
+        return jsonify({"reply": f"عذراً، حدث خطأ: {str(e)}", "response": "error"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
