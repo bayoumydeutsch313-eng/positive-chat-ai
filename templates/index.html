@@ -244,12 +244,41 @@ img{
         font-size:14px;
     }
 }
+  .sidebar{
+    transition:0.3s;
+}
+
+.sidebar.hidden{
+    width:0;
+    min-width:0;
+    padding:0;
+    overflow:hidden;
+}
+
+.header{
+    position:relative;
+}
+
+#menuBtn{
+    position:absolute;
+    left:15px;
+    top:50%;
+    transform:translateY(-50%);
+    background:none;
+    border:none;
+    font-size:28px;
+    cursor:pointer;
+    color:#333;
+}
 </style>
 </head>
 <body>
 
 <div class="sidebar">
-<div class="logo">AI Support</div>
+<div class="header">
+    <button id="menuBtn" onclick="toggleSidebar()">☰</button>
+    AI Support Chat
+</div>
 
 <button class="btn new-chat" onclick="newChat()">+ New Chat</button>
 <button class="btn clear-history" onclick="clearHistory()">🗑 Clear History</button>
@@ -440,6 +469,10 @@ renderHistory();
 if(chats.length > 0){
 currentChat = chats[0];
 renderMessages();
+}
+  function toggleSidebar(){
+    document.querySelector(".sidebar")
+        .classList.toggle("hidden");
 }
 </script>
 
