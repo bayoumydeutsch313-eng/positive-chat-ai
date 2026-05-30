@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>AI Support Chat</title>
 
 <style>
+
 *{
 margin:0;
 padding:0;
@@ -18,332 +21,374 @@ display:flex;
 height:100vh;
 background:#f5f5f5;
 direction:rtl;
+overflow:hidden;
 }
 
-/* Sidebar */
+/* SIDEBAR */
+
 .sidebar{
+
 width:300px;
 background:#202123;
 color:white;
+
 padding:15px;
+
+display:flex;
+flex-direction:column;
+
 overflow-y:auto;
+
 }
 
 .logo{
-font-size:24px;
+
+font-size:28px;
 font-weight:bold;
-margin-bottom:20px;
+
 text-align:center;
+
+margin-bottom:20px;
+
 }
 
 .btn{
+
 width:100%;
+
 padding:12px;
+
 border:none;
+
 border-radius:10px;
-font-size:17px;
-cursor:pointer;
+
 margin-bottom:10px;
+
+font-size:16px;
+
+cursor:pointer;
+
 }
 
 .new-chat{
+
 background:#19c37d;
 color:white;
+
 }
 
 .clear-history{
+
 background:#e53935;
 color:white;
+
 }
 
 .chat-item{
-background:#343541;
-padding:12px;
-border-radius:10px;
-margin-bottom:10px;
-cursor:pointer;
-transition:.3s;
-position:relative;
-}
 
-.chat-item:hover{
-background:#444654;
+background:#343541;
+
+padding:12px;
+
+border-radius:10px;
+
+margin-bottom:10px;
+
+position:relative;
+
+cursor:pointer;
+
 }
 
 .delete-one{
+
 position:absolute;
+
 left:10px;
 top:10px;
-color:#ff7675;
+
 cursor:pointer;
-font-size:18px;
+
 }
 
-/* Main */
+/* MAIN */
+
 .main{
+
 flex:1;
+
 display:flex;
+
 flex-direction:column;
+
+height:100vh;
+
 }
 
 .header{
-padding:20px;
-font-size:28px;
-font-weight:bold;
-text-align:center;
+
 background:white;
+
+padding:20px;
+
+font-size:32px;
+
+font-weight:bold;
+
+text-align:center;
+
 border-bottom:1px solid #ddd;
+
 }
 
 .chat-box{
+
 flex:1;
-padding:20px;
+
 overflow-y:auto;
+
+padding:20px;
+
 }
 
 .message{
-max-width:75%;
+
 padding:15px;
-margin:10px 0;
+
 border-radius:15px;
+
+margin:10px 0;
+
+max-width:75%;
+
 line-height:1.7;
+
 white-space:pre-wrap;
+
 }
 
 .user{
-background:#d4f8d4;
+
+background:#d7f8d7;
+
 margin-right:auto;
+
 }
 
 .ai{
+
 background:white;
+
 border:1px solid #ddd;
+
 }
 
 .input-area{
-padding:15px;
-background:white;
+
 display:flex;
+
 gap:10px;
+
+padding:15px;
+
+background:white;
+
 border-top:1px solid #ddd;
+
 }
 
 textarea{
+
 flex:1;
+
 height:60px;
+
 resize:none;
+
 padding:15px;
+
 font-size:16px;
+
 border-radius:10px;
+
 }
 
 .send{
+
 padding:15px 25px;
-background:#19c37d;
+
 border:none;
+
+background:#19c37d;
+
 color:white;
+
 font-size:18px;
+
 border-radius:10px;
+
 cursor:pointer;
+
 }
+
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+body{
+
+flex-direction:column;
+
+}
+
+.sidebar{
+
+width:100%;
+
+height:170px;
+
+order:2;
+
+}
+
+.main{
+
+order:1;
+
+height:calc(100vh - 170px);
+
+}
+
+.header{
+
+font-size:22px;
+
+padding:15px;
+
+}
+
+.message{
+
+max-width:90%;
+
+}
+
+}
+
+
+@media(max-width:600px){
+
+.input-area{
+
+padding:10px;
+
+}
+
+.send{
+
+width:90px;
+
+font-size:16px;
+
+}
+
+textarea{
+
+height:55px;
+
+}
+
+.sidebar{
+
+height:150px;
+
+}
+
+.main{
+
+height:calc(100vh - 150px);
+
+}
+
+}
+
 </style>
+
 </head>
+
 <body>
 
-<div class="sidebar">
-<div class="logo">AI Support</div>
 
-<button class="btn new-chat" onclick="newChat()">+ New Chat</button>
-<button class="btn clear-history" onclick="clearHistory()">🗑 Clear History</button>
+<div class="sidebar">
+
+<div class="logo">
+
+AI Support
+
+</div>
+
+
+<button class="btn new-chat" onclick="newChat()">
+
+New Chat +
+
+</button>
+
+
+<button class="btn clear-history" onclick="clearHistory()">
+
+Clear History 🗑
+
+</button>
+
 
 <div id="history"></div>
+
 </div>
+
 
 <div class="main">
 
-<div class="header">AI Support Chat</div>
+
+<div class="header">
+
+AI Support Chat
+
+</div>
+
 
 <div class="chat-box" id="chatBox"></div>
 
+
 <div class="input-area">
-<textarea id="message" placeholder="Type your message here..."></textarea>
-<button class="send" onclick="sendMessage()">Send</button>
-</div>
+
+<textarea
+id="message"
+placeholder="Type your message here..."
+></textarea>
+
+
+<button class="send"
+onclick="sendMessage()">
+
+Send
+
+</button>
 
 </div>
+
+
+</div>
+
 
 <script>
-let chats = JSON.parse(localStorage.getItem("chats")) || [];
-let currentChat = null;
 
-/* حفظ */
-function saveChats(){
-localStorage.setItem("chats", JSON.stringify(chats));
-renderHistory();
-}
+/* حط الجافاسكريبت القديم بتاعك هنا بدون تغيير */
 
-/* محادثة جديدة */
-function newChat(){
-currentChat = {
-id: Date.now(),
-title:"New Chat",
-messages:[]
-};
-
-chats.unshift(currentChat);
-saveChats();
-renderMessages();
-}
-
-/* عرض السجل */
-function renderHistory(){
-const history = document.getElementById("history");
-history.innerHTML = "";
-
-chats.forEach(chat=>{
-history.innerHTML += `
-<div class="chat-item">
-<span onclick="loadChat(${chat.id})">${chat.title}</span>
-<span class="delete-one" onclick="deleteChat(${chat.id})">🗑</span>
-</div>
-`;
-});
-}
-
-/* فتح محادثة */
-function loadChat(id){
-currentChat = chats.find(c=>c.id===id);
-renderMessages();
-}
-
-/* عرض الرسائل */
-function renderMessages(){
-const box = document.getElementById("chatBox");
-box.innerHTML = "";
-
-if(!currentChat) return;
-
-currentChat.messages.forEach(msg=>{
-box.innerHTML += `
-<div class="message ${msg.type}">
-${msg.text}
-</div>
-`;
-});
-
-box.scrollTop = box.scrollHeight;
-}
-
-/* حذف محادثة واحدة */
-function deleteChat(id){
-chats = chats.filter(chat => chat.id !== id);
-
-if(currentChat && currentChat.id === id){
-currentChat = null;
-document.getElementById("chatBox").innerHTML = "";
-}
-
-saveChats();
-}
-
-/* حذف كل السجل */
-function clearHistory(){
-if(confirm("هل تريد حذف كل السجل؟")){
-chats = [];
-currentChat = null;
-localStorage.removeItem("chats");
-renderHistory();
-document.getElementById("chatBox").innerHTML = "";
-}
-}
-
-/* إرسال */
-async function sendMessage(){
-
-const input = document.getElementById("message");
-const text = input.value.trim();
-
-if(text=="") return;
-
-if(!currentChat) newChat();
-
-currentChat.messages.push({
-type:"user",
-text:text
-});
-
-if(currentChat.messages.length === 1){
-currentChat.title = text.substring(0,25);
-}
-
-renderMessages();
-saveChats();
-
-input.value="";
-
-/* رسالة انتظار */
-currentChat.messages.push({
-type:"ai",
-text:"Typing....."
-});
-
-renderMessages();
-
-try{
-
-const response = await fetch("/chat", {
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body: JSON.stringify({
-message:text
-})
-});
-
-const data = await response.json();
-
-/* إزالة الانتظار */
-currentChat.messages.pop();
-
-/* الرد الحقيقي من الذكاء الاصطناعي */
-currentChat.messages.push({
-type:"ai",
-text:data.reply
-});
-
-renderMessages();
-saveChats();
-
-}catch(error){
-
-currentChat.messages.pop();
-
-currentChat.messages.push({
-type:"ai",
-text:"تعذر الاتصال بالسيرفر. تأكد أن Flask يعمل."
-});
-
-renderMessages();
-}
-
-}
-
-/* Enter للإرسال */
-document.getElementById("message").addEventListener("keydown", function(e){
-if(e.key === "Enter" && !e.shiftKey){
-e.preventDefault();
-sendMessage();
-}
-});
-
-renderHistory();
-
-if(chats.length > 0){
-currentChat = chats[0];
-renderMessages();
-}
 </script>
 
+
 </body>
+
 </html>
