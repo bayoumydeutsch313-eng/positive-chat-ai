@@ -146,161 +146,90 @@ font-size:18px;
 border-radius:10px;
 cursor:pointer;
 }
-  /* Responsive لجميع الأجهزة */
+  /* Responsive Design */
 
-html{
-    font-size:16px;
-}
+@media (max-width: 768px){
 
-body{
-    min-width:320px;
-}
-
-.sidebar{
-    width:20%;
-    min-width:250px;
-    max-width:320px;
-}
-
-.main{
-    flex:1;
-    min-width:0;
-}
-
-.message{
-    max-width:75%;
-    word-wrap:break-word;
-}
-
-textarea{
-    width:100%;
-}
-
-img{
-    max-width:100%;
-    height:auto;
-}
-
-@media (max-width:1024px){
+    body{
+        flex-direction: column;
+        height: 100vh;
+    }
 
     .sidebar{
-        width:28%;
-        min-width:220px;
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .main{
+        width: 100%;
+        flex: 1;
     }
 
     .header{
-        font-size:24px;
-    }
-}
-
-@media (max-width:768px){
-
-    .sidebar{
-        width:30%;
-        min-width:180px;
-    }
-
-    .header{
-        font-size:22px;
+        font-size: 24px;
+        padding: 15px;
     }
 
     .message{
-        max-width:90%;
+        max-width: 95%;
+        font-size: 15px;
     }
 
-    .btn{
-        font-size:14px;
-    }
-
-    .logo{
-        font-size:20px;
-    }
-}
-
-@media (max-width:480px){
-
-    .sidebar{
-        width:35%;
-        min-width:140px;
-    }
-
-    .header{
-        font-size:18px;
-        padding:15px;
-    }
-
-    .message{
-        max-width:95%;
-        font-size:14px;
+    .input-area{
+        padding: 10px;
     }
 
     textarea{
-        font-size:14px;
-        padding:10px;
+        height: 55px;
+        font-size: 16px;
     }
 
     .send{
-        padding:10px 15px;
-        font-size:14px;
+        padding: 12px 18px;
+        font-size: 16px;
+    }
+
+    .logo{
+        font-size: 20px;
+    }
+
+    .btn{
+        font-size: 15px;
+        padding: 10px;
     }
 }
-  .sidebar{
-    transition:0.3s;
-}
 
-/* ChatGPT Style Sidebar */
+@media (max-width: 480px){
 
-.sidebar{
-    position: fixed;
-    top: 0;
-    right: -300px;
-    width: 300px;
-    height: 100vh;
-    background: #202123;
-    color: white;
-    padding: 15px;
-    overflow-y: auto;
-    transition: right 0.3s ease;
-    z-index: 1000;
-}
+    .header{
+        font-size: 20px;
+    }
 
-.sidebar.show{
-    right: 0;
-}
+    .message{
+        max-width: 100%;
+        padding: 12px;
+    }
 
-.main{
-    width:100%;
-    flex:1;
-}
+    .input-area{
+        flex-direction: row;
+    }
 
-.header{
-    position:relative;
-}
+    textarea{
+        font-size: 14px;
+    }
 
-#menuBtn{
-    position:absolute;
-    right:15px;
-    top:50%;
-    transform:translateY(-50%);
-    background:#202123;
-    color:white;
-    border:none;
-    border-radius:8px;
-    width:45px;
-    height:45px;
-    font-size:24px;
-    cursor:pointer;
-}
+    .send{
+        padding: 10px 15px;
+        font-size: 14px;
+    }
 }
 </style>
 </head>
 <body>
 
 <div class="sidebar">
-<div class="header">
-    AI Support Chat
-    <button id="menuBtn" onclick="toggleSidebar()">☰</button>
-</div>
+<div class="logo">AI Support</div>
 
 <button class="btn new-chat" onclick="newChat()">+ New Chat</button>
 <button class="btn clear-history" onclick="clearHistory()">🗑 Clear History</button>
@@ -491,12 +420,6 @@ renderHistory();
 if(chats.length > 0){
 currentChat = chats[0];
 renderMessages();
-}
-function toggleSidebar() {
-    document
-        .querySelector(".sidebar")
-        .classList.toggle("show");
-}
 }
 </script>
 
