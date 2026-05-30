@@ -6,6 +6,7 @@
 <title>AI Support Chat</title>
 
 <style>
+
 *{
 margin:0;
 padding:0;
@@ -18,15 +19,18 @@ display:flex;
 height:100vh;
 background:#f5f5f5;
 direction:rtl;
+overflow:hidden;
 }
 
 /* Sidebar */
+
 .sidebar{
 width:300px;
 background:#202123;
 color:white;
 padding:15px;
 overflow-y:auto;
+flex-shrink:0;
 }
 
 .logo{
@@ -64,6 +68,7 @@ margin-bottom:10px;
 cursor:pointer;
 transition:.3s;
 position:relative;
+word-break:break-word;
 }
 
 .chat-item:hover{
@@ -80,10 +85,12 @@ font-size:18px;
 }
 
 /* Main */
+
 .main{
 flex:1;
 display:flex;
 flex-direction:column;
+min-width:0;
 }
 
 .header{
@@ -108,6 +115,7 @@ margin:10px 0;
 border-radius:15px;
 line-height:1.7;
 white-space:pre-wrap;
+word-break:break-word;
 }
 
 .user{
@@ -135,6 +143,7 @@ resize:none;
 padding:15px;
 font-size:16px;
 border-radius:10px;
+min-width:0;
 }
 
 .send{
@@ -146,6 +155,59 @@ font-size:18px;
 border-radius:10px;
 cursor:pointer;
 }
+
+/* RESPONSIVE */
+
+@media screen and (max-width:900px){
+
+body{
+flex-direction:column;
+height:100dvh;
+overflow:hidden;
+}
+
+.sidebar{
+width:100%;
+height:auto;
+max-height:220px;
+order:2;
+}
+
+.main{
+order:1;
+height:100%;
+}
+
+.header{
+font-size:22px;
+padding:15px;
+}
+
+.chat-box{
+padding:12px;
+}
+
+.message{
+max-width:92%;
+font-size:15px;
+}
+
+.input-area{
+padding:10px;
+}
+
+textarea{
+height:55px;
+font-size:15px;
+}
+
+.send{
+padding:12px 18px;
+font-size:16px;
+}
+
+}
+
 </style>
 </head>
 <body>
