@@ -248,11 +248,29 @@ img{
     transition:0.3s;
 }
 
-.sidebar.hidden{
-    width:0;
-    min-width:0;
-    padding:0;
-    overflow:hidden;
+/* ChatGPT Style Sidebar */
+
+.sidebar{
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100vh;
+    background: #202123;
+    color: white;
+    padding: 15px;
+    overflow-y: auto;
+    transition: right 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar.show{
+    right: 0;
+}
+
+.main{
+    width:100%;
+    flex:1;
 }
 
 .header{
@@ -261,14 +279,18 @@ img{
 
 #menuBtn{
     position:absolute;
-    left:15px;
+    right:15px;
     top:50%;
     transform:translateY(-50%);
-    background:none;
+    background:#202123;
+    color:white;
     border:none;
-    font-size:28px;
+    border-radius:8px;
+    width:45px;
+    height:45px;
+    font-size:24px;
     cursor:pointer;
-    color:#333;
+}
 }
 </style>
 </head>
@@ -276,8 +298,8 @@ img{
 
 <div class="sidebar">
 <div class="header">
-    <button id="menuBtn" onclick="toggleSidebar()">☰</button>
     AI Support Chat
+    <button id="menuBtn" onclick="toggleSidebar()">☰</button>
 </div>
 
 <button class="btn new-chat" onclick="newChat()">+ New Chat</button>
@@ -470,9 +492,11 @@ if(chats.length > 0){
 currentChat = chats[0];
 renderMessages();
 }
-  function toggleSidebar(){
-    document.querySelector(".sidebar")
-        .classList.toggle("hidden");
+function toggleSidebar() {
+    document
+        .querySelector(".sidebar")
+        .classList.toggle("show");
+}
 }
 </script>
 
