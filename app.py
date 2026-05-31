@@ -43,7 +43,7 @@ def chat():
                 }
             ],
             temperature=0.7,
-            max_tokens=500
+            max_tokens=2000
         )
 
         reply_content = response.choices[0].message.content
